@@ -115,6 +115,7 @@ bool buttonSelect(ButtonState &btn) {
     btn.pressStart = now;
     btn.lastRepeat = now;
     forceDisplayUpdate = true;
+    return true;
   } 
   else if (state && btn.wasPressed) {
     // Held
@@ -131,7 +132,7 @@ bool buttonSelect(ButtonState &btn) {
 
 // ----- Relay Logic -----
 void updateRelay(bool logic) {
-  if (logic == true) {
+  if (logic) {
     if (tempread > tempset + HYSTERESIS) {
       digitalWrite(RELAY_PIN, LOW); // OFF
     } else if (tempread < tempset - HYSTERESIS) {
@@ -161,9 +162,6 @@ void defultUpdateDisplay() {
 
 void readUpdateDisplay() {
   if (forceDisplayUpdate || millis() - lastDisplayUpdate >= 1000) {
-    lcd.setCursor(0, 0);
-    lcd.print("Read Only");
-
     lcd.setCursor(9, 1);
     lcd.print(tempread, 1);
     lcd.print(" C  ");
@@ -179,9 +177,20 @@ void controlUpdater(bool toggle) {
     currentControl = !currentControl;  // toggle between 0 and 1
   }
 
-  if (currentControl == 1) {
+  if (currentControl) {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Target: ");
+    lcd.print(tempset);
+    lcd.print(" C");
+  
+    lcd.setCursor(0, 1);
+    lcd.print("Current: --.- C");
     defultUpdateDisplay();
   } else {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Read Only");
     readUpdateDisplay();
   }
 }
